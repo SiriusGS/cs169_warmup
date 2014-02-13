@@ -5,13 +5,15 @@ Cs169warmup::Application.routes.draw do
   post '/users/add' => 'users#add'
   post '/TESTAPI/resetFixture' => 'users#reset'
   post '/TESTAPI/unitTests' => 'users#unit_tests'
-"""
+  """
   root to: "users#webpage"
 
   match 'users/login/' => "users#login", via: [:post]
   match 'users/add' => "users#add", via: [:post]
   match 'TESTAPI/resetFixture' => "users#resetFixture", via: [:post]
   match 'TESTAPI/unitTests' => "users#unitTests", via: [:post]
+
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
