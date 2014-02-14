@@ -1,7 +1,7 @@
 import unittest
 import os
 import testLib
-
+import sys
 class TestUnit(testLib.RestTestCase):
     """Issue a REST API request to run the unit tests, and analyze the result"""
     def testUnit(self):
