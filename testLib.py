@@ -79,7 +79,7 @@ class RestTestCase(unittest.TestCase):
                 data = json.loads(data_string)
                 return data
             else:
-                self.assertEquals(503, resp.status)
+                self.assertEquals(200, resp.status)
         except:
             # In case of errors dump the whole response,to simplify debugging
             print "Got exception when processing response to url="+url+" method="+method+" data="+str(data)
