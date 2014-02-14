@@ -7,6 +7,7 @@ $ERR_BAD_USERNAME = -3
 $ERR_BAD_PASSWORD = -4
 
 class UsersTest < ActiveSupport::TestCase
+	
 		test "TESTAPI_resetFixture" do
         	Users.TESTAPI_resetFixture
         	result = Users.TESTAPI_resetFixture
