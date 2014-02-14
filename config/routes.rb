@@ -5,7 +5,7 @@ Cs169warmup::Application.routes.draw do
 
   match 'users/login/' => "users#login", via: [:post]
   match 'users/add' => "users#add", via: [:post]
-  match 'TESTAPI/resetFixture' => "users#resetFixture", via: [:post]
+  match 'TESTAPI/resetFixture' => "users#reset", via: [:post]
   match 'TESTAPI/unitTests' => "users#unitTests", via: [:post]
 
 
@@ -14,7 +14,6 @@ Cs169warmup::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
-
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
