@@ -1,146 +1,93 @@
-import sys
+"""
+Each file that starts with test... in this directory is scanned for subclasses of unittest.TestCase or testLib.RestTestCase
+"""
+
 import unittest
 import os
 import testLib
 
-# Test 1
-class TestFixtureReset(testLib.RestTestCase):
+class TestAddUser(testLib.RestTestCase):
+    """Test adding users"""
     def assertResponse(self, respData, count = 1, errCode = testLib.RestTestCase.SUCCESS):
-        
+        """
+        Check that the response data dictionary matches the expected values
+        """
         expected = { 'errCode' : errCode }
         if count is not None:
             expected['count']  = count
         self.assertDictEqual(expected, respData)
-    
-    def testAdd1(self):
-        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        self.makeRequest("/TESTAPI/resetFixture", method="POST")
 
-        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        self.assertResponse(respData)
+    def testUserExists1(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_USER_EXISTS)
 
-# Test 2
+    def testUserExists2(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password2'} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_USER_EXISTS)
 
-class TestUnregisteredLogin(testLib.RestTestCase):
-   
-    def assertResponse(self, respData, count = None, errCode = testLib.RestTestCase.ERR_BAD_CREDENTIALS):
-        
+    def testBadUsername1(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : '', 'password' : 'password'} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_BAD_USERNAME)
+
+    def testBadUsername2(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : '1'*129, 'password' : 'password'} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_BAD_USERNAME)
+
+    def testBadPassword1(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user2', 'password' : ''} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_BAD_PASSWORD)
+
+    def testBadPassword2(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user2', 'password' : '1'*129} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_BAD_PASSWORD)
+
+
+
+
+class TestLoginUser(testLib.RestTestCase):
+    """Test logining users"""
+    def assertResponse(self, respData, count = 1, errCode = testLib.RestTestCase.SUCCESS):
+        """
+        Check that the response data dictionary matches the expected values
+        """
         expected = { 'errCode' : errCode }
         if count is not None:
             expected['count']  = count
         self.assertDictEqual(expected, respData)
-    
-    def testLogin1(self):
-        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        self.assertResponse(respData)
 
-# Test 3
-
-class TestDuplicateUserAddition(testLib.RestTestCase):
-    def assertResponse(self, respData, count = None, errCode = testLib.RestTestCase.ERR_USER_EXISTS):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testAdd1(self):
-        self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'pass'} )
-        self.assertResponse(respData)
-
-# Test 4
-
-class TestBlankUsername(testLib.RestTestCase):
-   
-    def assertResponse(self, respData, count = None, errCode = testLib.RestTestCase.ERR_BAD_USERNAME):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testAdd1(self):
-        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : "", 'password' : 'password'} )
-        self.assertResponse(respData)
-
-# Test 5
-
-class Test129CharUsername(testLib.RestTestCase):
-    def assertResponse(self, respData, count = None, errCode = testLib.RestTestCase.ERR_BAD_USERNAME):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testAdd1(self):
-        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'a' * 129, 'password' : 'password'} )
-        self.assertResponse(respData)
-
-
-# Test 6
-
-class Test129CharPassword(testLib.RestTestCase):
-    
-    def assertResponse(self, respData, count = None, errCode = testLib.RestTestCase.ERR_BAD_PASSWORD):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testAdd1(self):
-        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'a'*129} )
-        self.assertResponse(respData)
-
-#Test 7
-
-class TestRegisteredLogin(testLib.RestTestCase):
-   
-    def assertResponse(self, respData, count = 2, errCode = testLib.RestTestCase.SUCCESS):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testLogin1(self):
-        self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : ''} )
-        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user', 'password' : ''} )
-        self.assertResponse(respData)
-
-#Test 8
-
-class TestWrongLoginPassword(testLib.RestTestCase):
-   
-    def assertResponse(self, respData, count = None, errCode = testLib.RestTestCase.ERR_BAD_CREDENTIALS):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testLogin1(self):
-        self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user', 'password' : 'hello'} )
-        self.assertResponse(respData)
-
-#Test 9
-
-class TestIntegration(testLib.RestTestCase):
-   
-    def assertResponse(self, respData, count = 2 , errCode = testLib.RestTestCase.SUCCESS):
-        
-        expected = { 'errCode' : errCode }
-        if count is not None:
-            expected['count']  = count
-        self.assertDictEqual(expected, respData)
-    
-    def testLogin1(self):
-        self.makeRequest("/users/add", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
-        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user', 'password' : 'password'} )
-        self.assertResponse(respData)
+    def testCount1(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
         respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
-        self.assertResponse(respData)
+        self.assertResponse(respData, count = 2)
+        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, count = 3)
+
+
+    def testCount2(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user2', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user3', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
+        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user1', 'password' : 'password'} )
+        self.assertResponse(respData, count = 2)
+
+
+    def testUserNotExists(self):
+        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'alien', 'password' : 'password'} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_BAD_CREDENTIALS)
+
+    def testWrongPassword(self):
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : 'user3', 'password' : 'password'} )
+        self.assertResponse(respData, count = 1)
+        respData = self.makeRequest("/users/login", method="POST", data = { 'user' : 'user3', 'password' : 'hi'} )
+        self.assertResponse(respData, None, testLib.RestTestCase.ERR_BAD_CREDENTIALS)
+
+
+

@@ -1,12 +1,11 @@
 Cs169warmup::Application.routes.draw do
   
 
-  root to: "users#webpage"
-
-  match 'users/login/' => "users#login", via: [:post]
-  match 'users/add' => "users#add", via: [:post]
-  match 'TESTAPI/resetFixture' => "users#resetFixture", via: [:post]
-  match 'TESTAPI/unitTests' => "users#unitTests", via: [:post]
+ root 'users#index'
+  post '/users/add' => 'users#add'
+  post '/users/login' => 'users#login'
+  post '/TESTAPI/resetFixture' => 'users#resetFixture'
+  post '/TESTAPI/unitTests' => 'users#unitTests'
 
 
   # The priority is based upon order of creation: first created -> highest priority.
