@@ -1,11 +1,6 @@
 Cs169warmup::Application.routes.draw do
   
-  """root 'users#webpage'
-  post '/users/login' => 'users#login'
-  post '/users/add' => 'users#add'
-  post '/TESTAPI/resetFixture' => 'users#reset'
-  post '/TESTAPI/unitTests' => 'users#unit_tests'
-  """
+
   root to: "users#webpage"
 
   match 'users/login/' => "users#login", via: [:post]
